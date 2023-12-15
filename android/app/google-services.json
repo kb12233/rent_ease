@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "531076052203",
+    "project_id": "rent-ease-c777b",
+    "storage_bucket": "rent-ease-c777b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531076052203:android:dc886465ed5456df0bfaae",
+        "android_client_info": {
+          "package_name": "com.example.rent_ease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB86GrBz_shr8Ln42CjEdqTkwHZLOVDDsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
