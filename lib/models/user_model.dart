@@ -20,7 +20,7 @@ class UserModel {
     required this.email,
     required this.password,
     required this.userType,
-    this.profilePictureURL = 'none'
+    this.profilePictureURL = ''
   });
 
   // Static method to get user data from Firestore using userID
