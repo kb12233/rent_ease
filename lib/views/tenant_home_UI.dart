@@ -83,9 +83,14 @@ class _TenantHomeUIState extends State<TenantHomeUI> {
             accountName: Text(
                 "${super.widget.user.firstname} ${super.widget.user.lastname}"),
             accountEmail: Text("${super.widget.user.email}"),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(widget.user.profilePictureURL),
-            ),
+            currentAccountPicture: widget.user.profilePictureURL != 'none' ? 
+              CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(widget.user.profilePictureURL),
+              ) : 
+              CircleAvatar(
+                child: Icon(Icons.person),
+              )
+            ,
             decoration: BoxDecoration(
               color: navcolor,
             ),
