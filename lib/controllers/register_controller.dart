@@ -23,7 +23,7 @@ class RegisterControl {
       'password': password,
       'userType': userType, // Set user type in the database
       // Add other fields as needed
-      'profilePictureURL': 'none'
+      'profilePictureURL': ''
     });
   }
 
