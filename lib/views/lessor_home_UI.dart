@@ -74,7 +74,7 @@ class _LessorHomeUIState extends State<LessorHomeUI> {
             accountName: Text(
                 "${super.widget.user.firstname} ${super.widget.user.lastname}"),
             accountEmail: Text("${super.widget.user.email}"),
-            currentAccountPicture: widget.user.profilePictureURL != 'none' ? 
+            currentAccountPicture: widget.user.profilePictureURL.isNotEmpty ? 
               CircleAvatar(
                 backgroundImage: CachedNetworkImageProvider(widget.user.profilePictureURL),
               ) : 
