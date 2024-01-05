@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rent_ease/controllers/edit_profile_controller.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:rent_ease/models/user_model.dart';
 
 class EditProfileUI extends StatefulWidget {
   const EditProfileUI({Key? key}) : super(key: key);
@@ -22,6 +23,8 @@ class _EditProfileUIState extends State<EditProfileUI> {
   final ImagePicker _imagePicker = ImagePicker();
   File? _imageFile; // To store the selected image file
   String _profilePictureURL = ''; // To store the profile picture URL
+  final user = FirebaseAuth.instance.currentUser!;
+  late UserModel userModel;
 
   @override
   void initState() {
@@ -29,8 +32,8 @@ class _EditProfileUIState extends State<EditProfileUI> {
     _fetchProfilePictureURL();
     _controller = EditProfileController();
     _controller.initialize();
+    getUser();
     //_loadProfilePicture(); // Load the profile picture when the page is initialized
-    
   }
 
   // @override
@@ -87,7 +90,6 @@ class _EditProfileUIState extends State<EditProfileUI> {
   void _fetchProfilePictureURL() async {
     // Fetch the profile picture URL from Firestore and update _profilePictureURL
     // Replace 'users', 'userId', and 'profilePictureURL' with your actual collection name, user ID, and field name
-    final user = FirebaseAuth.instance.currentUser!;
 
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     QuerySnapshot userQuery =
@@ -176,16 +178,23 @@ class _EditProfileUIState extends State<EditProfileUI> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CircleAvatar(
-                radius: 50,
-                // Display the profile picture or a default image/icon
-                backgroundImage: _imageFile != null
-                    ? FileImage(_imageFile!)
-                    : _profilePictureURL.isNotEmpty
-                        ? CachedNetworkImageProvider(_profilePictureURL)
-                        : const AssetImage('lib/images/tenant.png')
-                            as ImageProvider<Object>,
-              ),
+              userModel!.profilePictureURL.isNotEmpty ?
+                CircleAvatar(
+                  radius: 50,
+                  // Display the profile picture or a default image/icon
+                  backgroundImage: CachedNetworkImageProvider(_profilePictureURL)
+                ) :
+
+                CircleAvatar(
+                  radius: 50,
+                  // Display the profile picture or a default image/icon
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
+                  ),
+                )
+              //CachedNetworkImageProvider(property.photoURLs[imgIndex])
+              ,
               //CachedNetworkImageProvider(property.photoURLs[imgIndex])
 
               const SizedBox(height: 20),
@@ -201,7 +210,7 @@ class _EditProfileUIState extends State<EditProfileUI> {
               //   onPressed: _uploadProfilePicture,
               //   child: Text('Upload Profile Picture'),
               // ),
-              
+
               // Add other text fields for firstname, lastname, phoneNum, and username
               // Add a Save button to call _controller.updateUserData
 
@@ -212,7 +221,7 @@ class _EditProfileUIState extends State<EditProfileUI> {
               _buildTextField('Username', _controller.usernameController),
               const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 125),
+                padding: const EdgeInsets.symmetric(horizontal: 120),
                 child: FilledButton(
                   onPressed: () {
                     _controller.updateProfile(context);
@@ -225,5 +234,9 @@ class _EditProfileUIState extends State<EditProfileUI> {
         ),
       ),
     );
+  }
+
+  Future<void> getUser() async {
+    userModel = (await UserModel.getUserData(user.uid))!;
   }
 }
