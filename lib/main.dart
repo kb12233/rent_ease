@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           colorSchemeSeed: const Color(0xFF532D29), useMaterial3: true),
       debugShowCheckedModeBanner: false,
-      home: LoginUI(),
+      home: AuthPage(),
       routes: {
         '/auth': (context) => AuthPage(),
         '/login': (context) => LoginUI(),
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         '/availableproperties': (context) => AvailablePropertiesUI(),
         '/viewtenants': (context) => ViewTenantsUI(),
         '/viewproperties': (context) => ViewProperties(),
-        '/edit_profile': (context) => EditProfileUI()
+        // '/edit_profile': (context) => EditProfileUI()
       },
     );
   }
