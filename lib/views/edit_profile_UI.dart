@@ -12,7 +12,9 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:rent_ease/models/user_model.dart';
 
 class EditProfileUI extends StatefulWidget {
-  const EditProfileUI({Key? key}) : super(key: key);
+  final UserModel user;
+  
+  const EditProfileUI({required this.user});
 
   @override
   _EditProfileUIState createState() => _EditProfileUIState();
@@ -23,8 +25,7 @@ class _EditProfileUIState extends State<EditProfileUI> {
   final ImagePicker _imagePicker = ImagePicker();
   File? _imageFile; // To store the selected image file
   String _profilePictureURL = ''; // To store the profile picture URL
-  final user = FirebaseAuth.instance.currentUser!;
-  late UserModel userModel;
+  final user_auth = FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
@@ -32,7 +33,6 @@ class _EditProfileUIState extends State<EditProfileUI> {
     _fetchProfilePictureURL();
     _controller = EditProfileController();
     _controller.initialize();
-    getUser();
     //_loadProfilePicture(); // Load the profile picture when the page is initialized
   }
 
@@ -93,11 +93,13 @@ class _EditProfileUIState extends State<EditProfileUI> {
 
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     QuerySnapshot userQuery =
-        await users.where('userID', isEqualTo: user.uid).get();
+        await users.where('userID', isEqualTo: user_auth.uid).get();
     // final doc = await FirebaseFirestore.instance.collection('users').doc('userId').get();
-    setState(() {
-      _profilePictureURL = userQuery.docs[0]['profilePictureURL'];
-    });
+    if (mounted) {
+      setState(() {
+        _profilePictureURL = userQuery.docs[0]['profilePictureURL'];
+      });
+    }
   }
 
   Future<void> _uploadProfilePicture() async {
@@ -178,7 +180,7 @@ class _EditProfileUIState extends State<EditProfileUI> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              userModel!.profilePictureURL.isNotEmpty ?
+              widget.user.profilePictureURL.isNotEmpty ?
                 CircleAvatar(
                   radius: 50,
                   // Display the profile picture or a default image/icon
@@ -234,9 +236,5 @@ class _EditProfileUIState extends State<EditProfileUI> {
         ),
       ),
     );
-  }
-
-  Future<void> getUser() async {
-    userModel = (await UserModel.getUserData(user.uid))!;
   }
 }
