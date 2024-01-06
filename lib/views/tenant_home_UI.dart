@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:rent_ease/controllers/login_controller.dart';
 import 'package:rent_ease/models/user_model.dart';
 import 'package:rent_ease/views/available_properties_UI.dart';
+import 'package:rent_ease/views/edit_profile_UI.dart';
 import 'package:rent_ease/views/notifications_UI.dart';
 
 class TenantHomeUI extends StatefulWidget {
@@ -100,7 +101,11 @@ class _TenantHomeUIState extends State<TenantHomeUI> {
             onTap: () {
               // Add your logic for editing profile here
               // For example: Navigator.pushNamed(context, '/editprofile');
-              Navigator.pushNamed(context, '/edit_profile');
+              // Navigator.pushNamed(context, '/edit_profile');
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => EditProfileUI(user: widget.user))
+              );
             },
           ),
           ListTile(

@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:rent_ease/controllers/login_controller.dart';
 import 'package:rent_ease/models/user_model.dart';
+import 'package:rent_ease/views/edit_profile_UI.dart';
 import 'package:rent_ease/views/manage_properties_UI.dart';
 import 'package:rent_ease/views/notifications_UI.dart';
 import 'package:rent_ease/views/reservation_requests_UI.dart';
@@ -74,14 +75,14 @@ class _LessorHomeUIState extends State<LessorHomeUI> {
             accountName: Text(
                 "${super.widget.user.firstname} ${super.widget.user.lastname}"),
             accountEmail: Text("${super.widget.user.email}"),
-            currentAccountPicture: widget.user.profilePictureURL.isNotEmpty ? 
-              CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(widget.user.profilePictureURL),
-              ) : 
-              CircleAvatar(
-                child: Icon(Icons.person),
-              )
-            ,
+            currentAccountPicture: widget.user.profilePictureURL.isNotEmpty
+                ? CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                        widget.user.profilePictureURL),
+                  )
+                : CircleAvatar(
+                    child: Icon(Icons.person),
+                  ),
             decoration: BoxDecoration(
               color: navcolor,
             ),
@@ -91,7 +92,11 @@ class _LessorHomeUIState extends State<LessorHomeUI> {
             onTap: () {
               // Add your logic for editing profile here
               // For example: Navigator.pushNamed(context, '/editprofile');
-              Navigator.pushNamed(context, '/edit_profile');
+              // Navigator.pushNamed(context, '/edit_profile');
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => EditProfileUI(user: widget.user))
+              );
             },
           ),
           ListTile(
