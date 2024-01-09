@@ -5,6 +5,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rent_ease/controllers/payment_controller.dart';
+import 'package:rent_ease/models/payment_model.dart';
 
 import 'package:rent_ease/models/reservation_model.dart';
 import 'package:rent_ease/controllers/reservation_controller.dart';
@@ -20,12 +22,14 @@ class ReservationRequestsUI extends StatefulWidget {
 class _ReservationRequestsUIState extends State<ReservationRequestsUI> {
   late Stream<QuerySnapshot> _reservationStream;
   late ReservationController _reservationController;
+  late PaymentController _paymentController;
   final String lessorID = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   void initState() {
     super.initState();
     _reservationController = ReservationController(lessorId: lessorID);
+    _paymentController = PaymentController();
     _reservationStream = _reservationController.getReservationStream();
   }
 
@@ -49,7 +53,7 @@ class _ReservationRequestsUIState extends State<ReservationRequestsUI> {
                 itemCount: reservations.length,
                 itemBuilder: (context, index) {
                   var reservation = reservations[index];
-            
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3.0),
                     child: Card(
@@ -76,7 +80,19 @@ class _ReservationRequestsUIState extends State<ReservationRequestsUI> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             TextButton(
-                              onPressed: () => _acceptReservation(reservation),
+                              onPressed: () {
+                                _acceptReservation(reservation);
+                                _makeReservationFeePayment(
+                                  PaymentModel(
+                                    propertyID: reservation.propertyID,
+                                    tenantID: reservation.userID,
+                                    lessorID: lessorID,
+                                    dueDate: DateTime.now().add(Duration(days: 7)), 
+                                    paymentDate: DateTime.now(),
+                                    status: 'pending',
+                                  )
+                                );
+                              },
                               child: Text(
                                 'Accept',
                                 style: TextStyle(
@@ -130,9 +146,12 @@ class _ReservationRequestsUIState extends State<ReservationRequestsUI> {
     // You may want to update the UI or show a confirmation message here
   }
 
+  void _makeReservationFeePayment(PaymentModel paymentModel) async {
+    await _paymentController.addPayment(paymentModel: paymentModel);
+  }
+
   void _rejectReservation(ReservationModel reservation) async {
     await _reservationController.rejectReservation(reservation);
     // You may want to update the UI or show a confirmation message here
   }
-
 }
