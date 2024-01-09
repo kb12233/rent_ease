@@ -8,6 +8,7 @@ import 'package:rent_ease/models/user_model.dart';
 import 'package:rent_ease/views/available_properties_UI.dart';
 import 'package:rent_ease/views/edit_profile_UI.dart';
 import 'package:rent_ease/views/notifications_UI.dart';
+import 'package:rent_ease/views/payment_UI.dart';
 
 class TenantHomeUI extends StatefulWidget {
   final UserModel user;
@@ -127,7 +128,7 @@ class _TenantHomeUIState extends State<TenantHomeUI> {
       case 0:
         return AvailablePropertiesUI();
       case 1:
-        return PaymentScreen();
+        return PaymentUI();
       case 2:
         return NotificationsUI();
       default:
