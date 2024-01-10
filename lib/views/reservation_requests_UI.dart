@@ -84,6 +84,7 @@ class _ReservationRequestsUIState extends State<ReservationRequestsUI> {
                                 _acceptReservation(reservation);
                                 _makeReservationFeePayment(
                                   PaymentModel(
+                                    title: 'Pay for Reservation fee',
                                     propertyID: reservation.propertyID,
                                     tenantID: reservation.userID,
                                     lessorID: lessorID,

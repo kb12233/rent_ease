@@ -43,6 +43,7 @@ class PaymentController {
     }
 
     await payments.add({
+      'title': paymentModel.title,
       'propertyID': paymentModel.propertyID,
       'tenantID': paymentModel.tenantID,
       'lessorID': paymentModel.lessorID,

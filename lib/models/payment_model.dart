@@ -6,6 +6,7 @@ class PaymentModel {
   final DateTime dueDate;
   final DateTime paymentDate;
   final String status;
+  final String title;
 
   PaymentModel({
     required this.propertyID,
@@ -14,6 +15,7 @@ class PaymentModel {
     required this.dueDate,
     required this.status,
     required this.paymentDate,
+    required this.title,
     this.amount = 0,
   });
 }
