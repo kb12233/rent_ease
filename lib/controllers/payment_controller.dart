@@ -22,6 +22,8 @@ class PaymentController {
         .get();
 
     PropertyModel? propertyModel;
+    List<String> photoURLs =
+          List.from(propertyQuery.docs[0]['photoURLs'] ?? List.filled(8, ''));
 
     if (propertyQuery.size == 1) {
       // Map the fields to create a UserModel object
@@ -33,7 +35,7 @@ class PaymentController {
         locationAddress: propertyQuery.docs[0]['locationAddress'],
         rentPrice: propertyQuery.docs[0]['rentPrice'],
         tenant: propertyQuery.docs[0]['tenant'],
-        photoURLs: propertyQuery.docs[0]['photoURLs'],
+        photoURLs: photoURLs,
         minStay: propertyQuery.docs[0]['minStay'],
       );
     } else {
