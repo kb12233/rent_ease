@@ -27,6 +27,7 @@ class NotificationsUI extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('notifications')
             .where('userID', isEqualTo: userId)
+            .orderBy('notificationDate', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -40,7 +41,8 @@ class NotificationsUI extends StatelessWidget {
                 return NotificationModel(
                     userID: data['userID'],
                     message: data['message'],
-                    notificationID: data['notificationID']);
+                    notificationID: data['notificationID'],
+                    notificationDate: data['notificationDate'].toDate());
               },
             ).toList();
 
@@ -60,6 +62,12 @@ class NotificationsUI extends StatelessWidget {
                             EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         child: ListTile(
                           title: Text(notification.message),
+                          subtitle: Text(
+                            '${_formattedDate(notification.notificationDate)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () {
@@ -75,5 +83,9 @@ class NotificationsUI extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _formattedDate(DateTime date) {
+    return '${date.month}-${date.day}-${date.year}  |  ${date.hour}:${date.minute}';
   }
 }
