@@ -59,5 +59,11 @@ class PaymentController {
       .where('tenantID', isEqualTo: userID)
       .where('status', isEqualTo: 'pending')
       .snapshots(); 
-}
+  }
+
+  //new
+  Future<void> cancelPayment(String paymentID) async {
+  CollectionReference payments = FirebaseFirestore.instance.collection('payments');
+  await payments.doc(paymentID).update({'status': 'cancelled'});
+  }
 }
