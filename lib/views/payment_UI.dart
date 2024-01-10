@@ -226,7 +226,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pay/pay.dart';
 import 'package:rent_ease/controllers/payment_controller.dart';
+import 'package:rent_ease/payment_configurations.dart';
 
 class PaymentUI extends StatefulWidget {
   const PaymentUI({super.key});
@@ -315,18 +317,10 @@ class _PaymentUIState extends State<PaymentUI> {
                               children: [
                                 ButtonTheme(
                                   minWidth: 150,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Add logic to handle payment
-                                    },
-                                    child: Text('Pay with Google Pay'),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.green,
-                                      onPrimary: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                    ),
+                                  child: GooglePayButton(
+                                    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
+                                    paymentItems: [],
+                                    onPaymentResult: onGooglePayResult,
                                   ),
                                 ),
                               ],
@@ -361,5 +355,9 @@ class _PaymentUIState extends State<PaymentUI> {
   // Function to format the date
   String _formatDate(DateTime date) {
     return '${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}-${date.year.toString()}';
+  }
+
+  void onGooglePayResult(dynamic paymentResult) {
+    debugPrint(paymentResult.toString() + '1990');
   }
 }
