@@ -59,6 +59,7 @@ class ReservationController {
       userID: reservation.userID,
       message: 'Your reservation request has been accepted!',
       notificationID: '',
+      notificationDate: DateTime.now()
     ));
   }
 
@@ -74,6 +75,7 @@ class ReservationController {
       userID: reservation.userID,
       message: 'Your reservation request has been rejected :(',
       notificationID: '',
+      notificationDate: DateTime.now()
     ));
   }
 
@@ -104,6 +106,7 @@ class ReservationController {
         userID: propertyOwner,
         message: 'You have a new Reservation Request from $firstName $lastName :)',
         notificationID: '',
+        notificationDate: DateTime.now()
       ));
     } catch (e) {
       print('Error submitting reservation request: $e');
@@ -119,6 +122,7 @@ class ReservationController {
       'userID': notification.userID,
       'message': notification.message,
       'notificationID': notification.notificationID,
+      'notificationDate': notification.notificationDate,
     }).then((newNotification) async {
       await newNotification.update({'notificationID': newNotification.id});
     });

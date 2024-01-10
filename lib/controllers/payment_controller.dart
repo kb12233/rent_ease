@@ -134,6 +134,7 @@ class PaymentController {
       'message':
           'You have received the Reservation fee for ${propertyModel?.propertyName} paid by ${userModel?.firstname} ${userModel?.lastname}',
       'notificationID': '',
+      'notificationDate': DateTime.now()
     }).then((newNotification) async {
       await newNotification.update({'notificationID': newNotification.id});
     });
