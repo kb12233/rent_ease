@@ -52,4 +52,12 @@ class PaymentController {
       'amount': propertyModel?.rentPrice,
     });
   }
+
+  Stream<QuerySnapshot<Object?>> getPendingPayments({required String userID}) {
+  return FirebaseFirestore.instance
+      .collection('payments')
+      .where('tenantID', isEqualTo: userID)
+      .where('status', isEqualTo: 'pending')
+      .snapshots(); 
+}
 }
