@@ -54,12 +54,6 @@ class ReservationController {
         .doc(reservation.reservationID)
         .update({'is_accepted': true});
 
-    // Update the corresponding property with the tenant information
-    await FirebaseFirestore.instance
-        .collection('properties')
-        .doc(reservation.propertyID)
-        .update({'tenant': reservation.userID});
-
     // Add a notification for the tenant
     await addNotification(NotificationModel(
       userID: reservation.userID,

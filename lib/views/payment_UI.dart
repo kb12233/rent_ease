@@ -8,7 +8,7 @@ import 'package:rent_ease/payment_configurations.dart';
 class PaymentUI extends StatefulWidget {
   const PaymentUI({super.key});
 
-   @override
+  @override
   _PaymentUIState createState() => _PaymentUIState();
 }
 
@@ -55,7 +55,8 @@ class _PaymentUIState extends State<PaymentUI> {
                   child: Stack(
                     children: [
                       ListTile(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -94,9 +95,41 @@ class _PaymentUIState extends State<PaymentUI> {
                                 ButtonTheme(
                                   minWidth: 150,
                                   child: GooglePayButton(
-                                    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
+                                    paymentConfiguration:
+                                        PaymentConfiguration.fromJsonString(
+                                            defaultGooglePay),
                                     paymentItems: [],
-                                    onPaymentResult: onGooglePayResult,
+                                    onPaymentResult: (result) {
+                                      // Add your code here to handle the payment result
+                                      onGooglePayResult(result);
+                                      _paymentController
+                                          .updateStatusPaid(payments[index].id, payment['propertyID'], payment['tenantID'], payment['lessorID']);
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Text(
+                                                  'Payment Successful',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 16),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
@@ -104,13 +137,14 @@ class _PaymentUIState extends State<PaymentUI> {
                           ],
                         ),
                       ),
-                     Positioned(
+                      Positioned(
                         top: 10,
                         right: 10,
                         child: IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () async {
-                            await _paymentController.cancelPayment(payments[index].id);
+                            await _paymentController
+                                .cancelPayment(payments[index].id);
                             setState(() {
                               // Optionally, you can add code here to refresh or update the UI
                             });
@@ -134,6 +168,6 @@ class _PaymentUIState extends State<PaymentUI> {
   }
 
   void onGooglePayResult(dynamic paymentResult) {
-    debugPrint(paymentResult.toString() + '1990');
+    debugPrint(paymentResult.toString());
   }
 }
