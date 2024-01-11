@@ -2,12 +2,16 @@
 
 // ignore_for_file: prefer_const_constructors
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rent_ease/controllers/payment_controller.dart';
 import 'package:rent_ease/models/payment_model.dart';
 import 'package:rent_ease/models/tenant_rent_details.dart';
 import 'package:clipboard/clipboard.dart';
+import 'package:rent_ease/models/user_model.dart';
+import 'package:rent_ease/views/lessor_home_UI.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ViewTenantDetailsPage extends StatefulWidget {
@@ -21,19 +25,22 @@ class ViewTenantDetailsPage extends StatefulWidget {
 
 class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _dueDateController = TextEditingController();
   final TextEditingController _electricityController = TextEditingController();
   final TextEditingController _waterController = TextEditingController();
+
+  final user = FirebaseAuth.instance.currentUser!;
 
   late PaymentController _paymentController;
 
   double _total = 0.0;
   late DateTime picked_date;
+  late DateTime selectedStartDate;
 
   @override
   void initState() {
     _total = widget.tenant.rentPrice;
     picked_date = DateTime.now();
+    selectedStartDate = DateTime.now();
     _paymentController = PaymentController();
   }
 
@@ -54,7 +61,9 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
                   title: Text(
-                      '${widget.tenant.firstName} ${widget.tenant.lastName}'),
+                    '${widget.tenant.firstName} ${widget.tenant.lastName}',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -129,6 +138,10 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                           )
                         ],
                       ),
+                      Text(
+                          'Last Payment Date: ${_formattedDate(widget.tenant.lastPaymentDate)}'),
+                      Text(
+                          'Next Payment Date: ${_formattedDate(widget.tenant.lastPaymentDate.add(Duration(days: 30)))}'),
                     ],
                   ),
                 ),
@@ -149,6 +162,11 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      SizedBox(height: 8),
+                      Text(
+                        '*You can only set monthly rent every 15 days.',
+                        style: TextStyle(fontSize: 14, color: Colors.red),
+                      ),
                       SizedBox(height: 16),
                       TextField(
                         controller: _titleController,
@@ -166,29 +184,58 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      TextField(
-                        controller: _dueDateController,
-                        decoration: InputDecoration(
-                          labelText: 'Due Date',
-                          border: OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              final DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2101),
-                              );
-                              if (pickedDate != null) {
-                                _dueDateController.text =
-                                    "${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.year.toString()}";
-                                picked_date = pickedDate;
-                              }
-                            },
-                            icon: Icon(Icons.calendar_today),
-                          ),
+                      TextButton(
+                        onPressed: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2101),
+                          );
+                          if (pickedDate != null) {
+                            // _dueDateController.text =
+                            //     "${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.year.toString()}";
+                            setState(() {
+                              selectedStartDate = pickedDate;
+                              picked_date = pickedDate;
+                            });
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_today),
+                            SizedBox(width: 8),
+                            Text(
+                              'Due Date: ${_formattedDate(selectedStartDate)}',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
                         ),
                       ),
+                      SizedBox(height: 16),
+                      // TextField(
+                      //   controller: _dueDateController,
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Due Date',
+                      //     border: OutlineInputBorder(),
+                      //     suffixIcon: IconButton(
+                      //       onPressed: () async {
+                      //         final DateTime? pickedDate = await showDatePicker(
+                      //           context: context,
+                      //           initialDate: DateTime.now(),
+                      //           firstDate: DateTime(2000),
+                      //           lastDate: DateTime(2101),
+                      //         );
+                      //         if (pickedDate != null) {
+                      //           _dueDateController.text =
+                      //               "${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.year.toString()}";
+                      //           picked_date = pickedDate;
+                      //         }
+                      //       },
+                      //       icon: Icon(Icons.calendar_today),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(height: 16),
                       Text(
                         'Rent: ₱${widget.tenant.rentPrice}',
@@ -239,24 +286,86 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FilledButton(
-                            onPressed: () {
-                              // Logic to set monthly rent
-                              _makePayment(PaymentModel(
-                                propertyID: widget.tenant.propertyID, 
-                                tenantID: widget.tenant.userID, 
-                                lessorID: widget.tenant.propertyOwner, 
-                                dueDate: picked_date, 
-                                status: 'pending', 
-                                paymentDate: DateTime.now(), 
-                                title: _titleController.text.trim(),
-                                amount: _total
-                              ));
-                              Fluttertoast.showToast(
-                                msg: "Monthly rent set!",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                              );
-                            },
+                            // Set to inSeconds for testing purposes
+                            // You can set it to inDays to check difference in days
+                            onPressed: DateTime.now()
+                                        .difference(
+                                            widget.tenant.lastPaymentDate)
+                                        .inSeconds <= 15
+                                ? null
+                                : () async {
+                                    // Logic to set monthly rent
+                                    if (_titleController.text.isEmpty) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Text(
+                                                  'Please input all required fields to proceed.',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 16),
+                                                FilledButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        },
+                                      );
+                                      try {
+                                        await _makePayment(PaymentModel(
+                                            propertyID:
+                                                widget.tenant.propertyID,
+                                            tenantID: widget.tenant.userID,
+                                            lessorID:
+                                                widget.tenant.propertyOwner,
+                                            dueDate: picked_date,
+                                            status: 'pending',
+                                            paymentDate: DateTime.now(),
+                                            title: _titleController.text.trim(),
+                                            amount: _total));
+                                        await _makeNotificationForTenant(
+                                            widget.tenant.userID,
+                                            _titleController.text.trim());
+                                      } on Exception catch (e) {
+                                        debugPrint(e.toString());
+                                      }
+                                      Navigator.pop(context);
+                                      Fluttertoast.showToast(
+                                        msg: "Monthly rent set!",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                      );
+                                      UserModel userModel =
+                                          (await UserModel.getUserData(
+                                              user.uid))!;
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LessorHomeUI(
+                                                      user: userModel)));
+                                    }
+                                  },
                             child: Text('Set Monthly Rent'),
                           ),
                         ],
@@ -284,8 +393,26 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
     });
   }
 
-  void _makePayment(PaymentModel paymentModel) async {
+  Future<void> _makePayment(PaymentModel paymentModel) async {
     await _paymentController.addPayment(paymentModel: paymentModel);
+  }
+
+  Future<void> _makeNotificationForTenant(String tenantID, String title) async {
+    CollectionReference notifications =
+        FirebaseFirestore.instance.collection('notifications');
+
+    await notifications.add({
+      'userID': tenantID,
+      'message': 'You have a new pending payment: $title',
+      'notificationID': '',
+      'notificationDate': DateTime.now()
+    }).then((newNotification) async {
+      await newNotification.update({'notificationID': newNotification.id});
+    });
+  }
+
+  String _formattedDate(DateTime date) {
+    return '${date.month}-${date.day}-${date.year}';
   }
 
   // Function to launch URL

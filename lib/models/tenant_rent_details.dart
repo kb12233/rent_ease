@@ -12,6 +12,7 @@ class TenantRentDetails {
   final double rentPrice;
   final String propertyID;
   final String propertyOwner;
+  final DateTime lastPaymentDate;
 
   TenantRentDetails(
       {required this.userID,
@@ -22,5 +23,6 @@ class TenantRentDetails {
       required this.email,
       required this.rentPrice,
       required this.propertyID,
-      required this.propertyOwner});
+      required this.propertyOwner,
+      required this.lastPaymentDate});
 }
