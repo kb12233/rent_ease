@@ -359,6 +359,8 @@ class PropertyController {
           var email = tenantData['email'] ?? 'No email';
           var rentPrice = property['rentPrice'] ?? 0.0;
           var propertyID = property['propertyID'] ?? 'Unknown Property';
+          var propertyOwner =
+              property['propertyOwner'] ?? 'Unkown Property Owner';
 
           tenants.add(TenantRentDetails(
               userID: tenantData['userID'],
@@ -368,7 +370,8 @@ class PropertyController {
               phoneNumber: phoneNumber,
               email: email,
               rentPrice: rentPrice,
-              propertyID: propertyID));
+              propertyID: propertyID,
+              propertyOwner: propertyOwner));
         }
       }
 

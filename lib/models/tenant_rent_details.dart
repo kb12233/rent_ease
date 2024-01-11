@@ -11,6 +11,7 @@ class TenantRentDetails {
   final String email; // New property for email
   final double rentPrice;
   final String propertyID;
+  final String propertyOwner;
 
   TenantRentDetails(
       {required this.userID,
@@ -20,6 +21,6 @@ class TenantRentDetails {
       required this.phoneNumber,
       required this.email,
       required this.rentPrice,
-      required this.propertyID
-  });
+      required this.propertyID,
+      required this.propertyOwner});
 }
