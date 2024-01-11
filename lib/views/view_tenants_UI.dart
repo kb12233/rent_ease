@@ -3,7 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rent_ease/controllers/property_controller.dart';
-import 'package:rent_ease/models/tenant_model.dart';
+import 'package:rent_ease/models/tenant_rent_details.dart';
 import 'package:rent_ease/views/view_tenant_details.dart';
 
 class ViewTenantsUI extends StatefulWidget {
@@ -14,7 +14,7 @@ class ViewTenantsUI extends StatefulWidget {
 }
 
 class _ViewTenantsUIState extends State<ViewTenantsUI> {
-  late Stream<List<TenantModel>> _tenantsStream;
+  late Stream<List<TenantRentDetails>> _tenantsStream;
   late PropertyController _propertyController;
   final user = FirebaseAuth.instance.currentUser!;
 
@@ -31,7 +31,7 @@ class _ViewTenantsUIState extends State<ViewTenantsUI> {
       appBar: AppBar(
         title: Text('Tenants'),
       ),
-      body: StreamBuilder<List<TenantModel>>(
+      body: StreamBuilder<List<TenantRentDetails>>(
         stream: _tenantsStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -71,7 +71,8 @@ class _ViewTenantsUIState extends State<ViewTenantsUI> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ViewTenantDetailsPage(tenant: tenant),
+                          builder: (context) =>
+                              ViewTenantDetailsPage(tenant: tenant),
                         ),
                       );
                     },

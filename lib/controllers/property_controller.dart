@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:rent_ease/models/property_model.dart';
-import 'package:rent_ease/models/tenant_model.dart';
+import 'package:rent_ease/models/tenant_rent_details.dart';
 
 class PropertyController {
   final String lessorId;
@@ -264,7 +264,7 @@ class PropertyController {
         // Rename remaining files in storage
         await renameRemainingFiles(propertyID, imageIndex, photoURLs.length);
 
-        // Update the property's photoURLs after removing 
+        // Update the property's photoURLs after removing
         // the image and renaming the remaning files
         List<String> updatedPhotoURLs = await _getUploadedPhotoURLs(propertyID);
         await FirebaseFirestore.instance
@@ -279,18 +279,15 @@ class PropertyController {
 
   /// Renames remaining files in storage after deleting an image and deletes the original reference.
   Future<void> renameRemainingFiles(
-    String propertyID, 
-    int deletedImageIndex, 
-    int endIndex
-    ) async {
+      String propertyID, int deletedImageIndex, int endIndex) async {
     for (int i = deletedImageIndex + 1; i < endIndex; i++) {
       final String originalPath = 'property_images/$propertyID/photo_$i.jpg';
       final String newPath = 'property_images/$propertyID/photo_${i - 1}.jpg';
 
-      final originalRef = 
-        firebase_storage.FirebaseStorage.instance.ref().child(originalPath);
+      final originalRef =
+          firebase_storage.FirebaseStorage.instance.ref().child(originalPath);
       final newRef =
-        firebase_storage.FirebaseStorage.instance.ref().child(newPath);
+          firebase_storage.FirebaseStorage.instance.ref().child(newPath);
 
       // Download the file to a temporary file
       Directory tempDir = await getTemporaryDirectory();
@@ -335,14 +332,14 @@ class PropertyController {
     }).toList();
   }
 
-  Stream<List<TenantModel>> getTenantsStream() {
+  Stream<List<TenantRentDetails>> getTenantsStream() {
     return FirebaseFirestore.instance
         .collection('properties')
         .where('propertyOwner', isEqualTo: lessorId)
         .where('tenant', isNotEqualTo: 'none')
         .snapshots()
         .asyncMap((snapshot) async {
-      List<TenantModel> tenants = [];
+      List<TenantRentDetails> tenants = [];
 
       for (var property in snapshot.docs) {
         var tenantID = property['tenant'];
@@ -360,15 +357,18 @@ class PropertyController {
           var roomName = property['propertyName'] ?? 'Unknown Room';
           var phoneNumber = tenantData['phoneNum'] ?? 'No phone number';
           var email = tenantData['email'] ?? 'No email';
+          var rentPrice = property['rentPrice'] ?? 0.0;
+          var propertyID = property['propertyID'] ?? 'Unknown Property';
 
-          tenants.add(TenantModel(
-            userID: tenantData['userID'],
-            firstName: tenantData['firstname'],
-            lastName: tenantData['lastname'],
-            roomName: roomName,
-            phoneNumber: phoneNumber,
-            email: email,
-          ));
+          tenants.add(TenantRentDetails(
+              userID: tenantData['userID'],
+              firstName: tenantData['firstname'],
+              lastName: tenantData['lastname'],
+              roomName: roomName,
+              phoneNumber: phoneNumber,
+              email: email,
+              rentPrice: rentPrice,
+              propertyID: propertyID));
         }
       }
 
