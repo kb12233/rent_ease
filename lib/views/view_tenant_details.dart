@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:rent_ease/controllers/payment_controller.dart';
+import 'package:rent_ease/models/payment_model.dart';
 import 'package:rent_ease/models/tenant_rent_details.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,11 +25,16 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
   final TextEditingController _electricityController = TextEditingController();
   final TextEditingController _waterController = TextEditingController();
 
+  late PaymentController _paymentController;
+
   double _total = 0.0;
+  late DateTime picked_date;
 
   @override
   void initState() {
     _total = widget.tenant.rentPrice;
+    picked_date = DateTime.now();
+    _paymentController = PaymentController();
   }
 
   @override
@@ -175,6 +182,7 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                               if (pickedDate != null) {
                                 _dueDateController.text =
                                     "${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.year.toString()}";
+                                picked_date = pickedDate;
                               }
                             },
                             icon: Icon(Icons.calendar_today),
@@ -233,6 +241,16 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
                           FilledButton(
                             onPressed: () {
                               // Logic to set monthly rent
+                              _makePayment(PaymentModel(
+                                propertyID: widget.tenant.propertyID, 
+                                tenantID: widget.tenant.userID, 
+                                lessorID: widget.tenant.propertyOwner, 
+                                dueDate: picked_date, 
+                                status: 'pending', 
+                                paymentDate: DateTime.now(), 
+                                title: _titleController.text.trim(),
+                                amount: _total
+                              ));
                               Fluttertoast.showToast(
                                 msg: "Monthly rent set!",
                                 toastLength: Toast.LENGTH_SHORT,
@@ -264,6 +282,10 @@ class _ViewTenantDetailsPageState extends State<ViewTenantDetailsPage> {
               ? 0
               : double.parse(_waterController.text));
     });
+  }
+
+  void _makePayment(PaymentModel paymentModel) async {
+    await _paymentController.addPayment(paymentModel: paymentModel);
   }
 
   // Function to launch URL
