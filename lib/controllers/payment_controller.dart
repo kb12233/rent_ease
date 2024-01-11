@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:rent_ease/models/payment_model.dart';
 import 'package:rent_ease/models/property_model.dart';
 import 'package:rent_ease/models/user_model.dart';
@@ -144,5 +145,24 @@ class PaymentController {
     }).then((newNotification) async {
       await newNotification.update({'notificationID': newNotification.id});
     });
+  }
+
+  Future<DateTime> getLastPaymentDate(String propertyID, String tenantID) async {
+    try {
+      QuerySnapshot paymentQuery = await FirebaseFirestore.instance
+          .collection('payments')
+          .where('propertyID', isEqualTo: propertyID)
+          .where('tenantID', isEqualTo: tenantID)
+          .orderBy('paymentDate', descending: true)
+          .limit(1)
+          .get();
+
+      if (paymentQuery.docs.isNotEmpty) {
+        return paymentQuery.docs[0]['paymentDate'].toDate();
+      }
+    } catch (e) {
+      debugPrint("Error getting last payment date: $e");
+    }
+    return DateTime(2000); // Return a default date if no payment found
   }
 }

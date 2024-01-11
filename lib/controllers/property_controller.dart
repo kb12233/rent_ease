@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:rent_ease/controllers/payment_controller.dart';
 import 'package:rent_ease/models/property_model.dart';
 import 'package:rent_ease/models/tenant_rent_details.dart';
 
@@ -362,6 +363,9 @@ class PropertyController {
           var propertyOwner =
               property['propertyOwner'] ?? 'Unkown Property Owner';
 
+          PaymentController paymentController = PaymentController();
+          var lastPaymentDate = await paymentController.getLastPaymentDate(propertyID, tenantData['userID']);
+
           tenants.add(TenantRentDetails(
               userID: tenantData['userID'],
               firstName: tenantData['firstname'],
@@ -371,7 +375,8 @@ class PropertyController {
               email: email,
               rentPrice: rentPrice,
               propertyID: propertyID,
-              propertyOwner: propertyOwner));
+              propertyOwner: propertyOwner,
+              lastPaymentDate: lastPaymentDate));
         }
       }
 
