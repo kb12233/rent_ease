@@ -163,6 +163,6 @@ class PaymentController {
     } catch (e) {
       debugPrint("Error getting last payment date: $e");
     }
-    return DateTime(2000); // Return a default date if no payment found
+    return DateTime(2024); // Return a default date if no payment found
   }
 }
