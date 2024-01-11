@@ -76,7 +76,7 @@ class _AvailablePropertyDetailsUIState
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
+                      FilledButton(
                         onPressed: () async {
                           bool isCurrentUserTenant =
                               await isUserTenant(user.uid);
