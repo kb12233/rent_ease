@@ -55,6 +55,7 @@ class PaymentController {
     });
   }
 
+  
   Stream<QuerySnapshot<Object?>> getPendingPayments({required String userID}) {
     return FirebaseFirestore.instance
         .collection('payments')
@@ -63,6 +64,7 @@ class PaymentController {
         .snapshots();
   }
 
+  
   //new
   Future<void> cancelPayment(String paymentID) async {
     CollectionReference payments =
@@ -70,6 +72,7 @@ class PaymentController {
     await payments.doc(paymentID).update({'status': 'cancelled'});
   }
 
+  
   Future<void> updateStatusPaid(String paymentID, String propertyID,
       String tenantID, String lessorID) async {
     CollectionReference payments =
@@ -122,7 +125,10 @@ class PaymentController {
       userModel = null;
     }
 
-    await payments.doc(paymentID).update({'status': 'paid'});
+    await payments.doc(paymentID).update({
+      'status': 'paid',
+      'paymentDate': DateTime.now()
+    });
 
     await FirebaseFirestore.instance
         .collection('properties')
