@@ -56,7 +56,6 @@ class PaymentController {
     });
   }
 
-  
   Stream<QuerySnapshot<Object?>> getPendingPayments({required String userID}) {
     return FirebaseFirestore.instance
         .collection('payments')
@@ -65,7 +64,6 @@ class PaymentController {
         .snapshots();
   }
 
-  
   //new
   Future<void> cancelPayment(String paymentID) async {
     CollectionReference payments =
@@ -73,7 +71,6 @@ class PaymentController {
     await payments.doc(paymentID).update({'status': 'cancelled'});
   }
 
-  
   Future<void> updateStatusPaid(String paymentID, String propertyID,
       String tenantID, String lessorID) async {
     CollectionReference payments =
@@ -126,10 +123,13 @@ class PaymentController {
       userModel = null;
     }
 
-    await payments.doc(paymentID).update({
-      'status': 'paid',
-      'paymentDate': DateTime.now()
-    });
+    await payments
+        .doc(paymentID)
+        .update({'status': 'paid', 'paymentDate': DateTime.now()});
+
+    QuerySnapshot paymentQuery =
+        await payments.where('paymentID', isEqualTo: paymentID).get();
+    String title = paymentQuery.docs[0]['title'];
 
     await FirebaseFirestore.instance
         .collection('properties')
@@ -138,8 +138,9 @@ class PaymentController {
 
     await notifications.add({
       'userID': lessorID,
-      'message':
-          'You have received the Reservation fee for ${propertyModel?.propertyName} paid by ${userModel?.firstname} ${userModel?.lastname}',
+      'message': title == 'Pay for Reservation fee'
+          ? 'You have received the Reservation fee for ${propertyModel?.propertyName} paid by ${userModel?.firstname} ${userModel?.lastname}'
+          : 'You have received the Monthly Rent for ${propertyModel?.propertyName} paid by ${userModel?.firstname} ${userModel?.lastname}',
       'notificationID': '',
       'notificationDate': DateTime.now()
     }).then((newNotification) async {
@@ -147,7 +148,8 @@ class PaymentController {
     });
   }
 
-  Future<DateTime> getLastPaymentDate(String propertyID, String tenantID) async {
+  Future<DateTime> getLastPaymentDate(
+      String propertyID, String tenantID) async {
     try {
       QuerySnapshot paymentQuery = await FirebaseFirestore.instance
           .collection('payments')
