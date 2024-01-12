@@ -127,9 +127,15 @@ class PaymentController {
         .doc(paymentID)
         .update({'status': 'paid', 'paymentDate': DateTime.now()});
 
-    QuerySnapshot paymentQuery =
-        await payments.where('paymentID', isEqualTo: paymentID).get();
-    String title = paymentQuery.docs[0]['title'];
+    // QuerySnapshot paymentQuery =
+    //     await payments.where('paymentID', isEqualTo: paymentID).get();
+    // String title = paymentQuery.docs[0]['title'];
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('payments')
+        .doc(paymentID)
+        .get();
+    Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+    String title = data['title'];
 
     await FirebaseFirestore.instance
         .collection('properties')
